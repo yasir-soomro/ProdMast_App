@@ -81,7 +81,7 @@ const AnimatedSphere = () => {
     );
 };
 
-// New Component for the Welcome Screen
+// Component for the Welcome Screen
 export const Intro3D = ({ exiting }: { exiting: boolean }) => {
   const groupRef = useRef<any>(null);
   const materialRef = useRef<any>(null);
@@ -133,16 +133,43 @@ export const Intro3D = ({ exiting }: { exiting: boolean }) => {
   );
 };
 
-export const Hero3D = () => {
+// Component for the Main Landing Background
+const HeroContent = () => {
   return (
-    <div className="absolute inset-0 z-0 opacity-40 pointer-events-none">
-      <Canvas camera={{ position: [0, 0, 5] }} dpr={[1, 1.5]} gl={{ powerPreference: 'high-performance' }}>
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[10, 10, 5]} intensity={1} color="#00C9A7" />
-        <ParticleField />
-        <group position={[0, 0, 0]}>
-             <AnimatedSphere />
-        </group>
+    <>
+      <ambientLight intensity={0.5} />
+      <directionalLight position={[10, 10, 5]} intensity={1} color="#00C9A7" />
+      <ParticleField />
+      <group position={[0, 0, 0]}>
+           <AnimatedSphere />
+      </group>
+    </>
+  );
+};
+
+// Unified Scene to handle single WebGL context
+export const Unified3DScene = ({ showSplash, exitingSplash }: { showSplash: boolean, exitingSplash: boolean }) => {
+  return (
+    <div className="absolute inset-0 z-0 pointer-events-none">
+      <Canvas 
+        camera={{ position: [0, 0, 5] }} 
+        dpr={[1, 1.5]} 
+        gl={{ powerPreference: 'default', antialias: true }}
+      >
+        {/* Consistent background color within Canvas if needed, though parent div handles it usually. 
+            However, for transparent canvas on top of div, we don't need color here. 
+            But Intro3D uses Stars which expects black bg? Stars adds points. 
+        */}
+        {showSplash ? (
+           <>
+              <ambientLight intensity={1} />
+              <pointLight position={[10, 10, 10]} color="#38BDF8" intensity={2} />
+              <pointLight position={[-10, -10, -10]} color="#00C9A7" intensity={2} />
+              <Intro3D exiting={exitingSplash} />
+           </>
+        ) : (
+           <HeroContent />
+        )}
       </Canvas>
     </div>
   );

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Hero3D } from './ThreeScene';
+import { Unified3DScene } from './ThreeScene';
 import { Button, SectionHeader, GlassCard } from './Shared';
 import { WelcomeSplash } from './WelcomeSplash';
 import { Settings, Cpu, ShieldCheck, Zap, Globe, BarChart3, ArrowRight, Check, Activity, ChevronRight } from 'lucide-react';
@@ -23,22 +23,49 @@ const PRICING: PricingPlan[] = [
 ];
 
 export const Landing: React.FC = () => {
-  const [showSplash, setShowSplash] = useState(true);
+  const [splashState, setSplashState] = useState<'idle' | 'exiting' | 'done'>('idle');
+
+  const handleStartExit = () => {
+    setSplashState('exiting');
+    // Wait for the warp animation (approx 1.5s)
+    setTimeout(() => {
+      setSplashState('done');
+    }, 1500);
+  };
 
   return (
-    <AnimatePresence mode="wait">
-      {showSplash ? (
-        <WelcomeSplash key="splash" onEnter={() => setShowSplash(false)} />
-      ) : (
+    <>
+      {/* Shared Single Canvas Background */}
+      {/* We keep this mounted at all times to preserve WebGL context */}
+      <div className="fixed inset-0 z-0">
+         <Unified3DScene 
+            showSplash={splashState !== 'done'} 
+            exitingSplash={splashState === 'exiting'} 
+         />
+      </div>
+
+      <AnimatePresence>
+        {splashState !== 'done' && (
+          <WelcomeSplash 
+            key="splash" 
+            isExiting={splashState === 'exiting'} 
+            onStartExit={handleStartExit} 
+          />
+        )}
+      </AnimatePresence>
+
+      {splashState === 'done' && (
         <motion.div
            key="landing"
+           className="relative z-10"
            initial={{ opacity: 0 }}
            animate={{ opacity: 1 }}
            transition={{ duration: 1 }}
         >
           {/* Hero Section */}
-          <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
-            <Hero3D />
+          <section className="relative min-h-screen flex items-center justify-center pt-20">
+            {/* 3D Scene is in fixed background now */}
+            
             <div className="container mx-auto px-6 relative z-10 text-center">
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
@@ -82,7 +109,7 @@ export const Landing: React.FC = () => {
           </section>
 
           {/* Services Section */}
-          <section className="py-24 relative bg-[#0F172A]">
+          <section className="py-24 relative bg-[#0F172A]/90 backdrop-blur-sm">
             <div className="container mx-auto px-6">
               <SectionHeader 
                 title="Intelligent Manufacturing" 
@@ -182,7 +209,7 @@ export const Landing: React.FC = () => {
           </section>
 
           {/* Pricing Section */}
-          <section className="py-24 relative">
+          <section className="py-24 relative bg-[#0F172A]">
             <div className="container mx-auto px-6">
               <SectionHeader title="Transparent Pricing" subtitle="Choose the plan that fits your factory scale." center />
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -242,6 +269,6 @@ export const Landing: React.FC = () => {
           </section>
         </motion.div>
       )}
-    </AnimatePresence>
+    </>
   );
 };

@@ -1,44 +1,25 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, Cpu, Activity, ShieldCheck, Zap } from 'lucide-react';
-import { Canvas } from '@react-three/fiber';
-import { Intro3D } from './ThreeScene';
 
 interface WelcomeSplashProps {
-  onEnter: () => void;
+  onStartExit: () => void;
+  isExiting: boolean;
 }
 
-export const WelcomeSplash: React.FC<WelcomeSplashProps> = ({ onEnter }) => {
-  const [exiting, setExiting] = useState(false);
-
-  const handleEnter = () => {
-    setExiting(true);
-    // Wait for the 3D warp animation before unmounting
-    setTimeout(() => {
-      onEnter();
-    }, 1500); 
-  };
-
+export const WelcomeSplash: React.FC<WelcomeSplashProps> = ({ onStartExit, isExiting }) => {
+  
   return (
     <motion.div 
-      className="fixed inset-0 z-[100] bg-[#020617] flex flex-col items-center justify-center overflow-hidden"
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden pointer-events-none"
       initial={{ opacity: 1 }}
-      exit={{ opacity: 0, pointerEvents: 'none', transition: { duration: 1 } }}
+      animate={{ opacity: isExiting ? 0 : 1 }}
+      transition={{ duration: 1, delay: 0.5 }} // Fade out UI slowly while 3D warps
     >
-      {/* 3D Background specifically for Intro */}
-      <div className="absolute inset-0 z-0">
-        <Canvas camera={{ position: [0, 0, 6] }}>
-          <ambientLight intensity={1} />
-          <pointLight position={[10, 10, 10]} color="#38BDF8" intensity={2} />
-          <pointLight position={[-10, -10, -10]} color="#00C9A7" intensity={2} />
-          <Intro3D exiting={exiting} />
-        </Canvas>
-      </div>
-
-      {/* Overlay UI */}
-      <div className="relative z-10 flex flex-col items-center justify-center h-full w-full px-4">
+      {/* Overlay UI - Pointer events auto for buttons */}
+      <div className="relative z-10 flex flex-col items-center justify-center h-full w-full px-4 pointer-events-auto">
         <AnimatePresence>
-          {!exiting && (
+          {!isExiting && (
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -76,10 +57,10 @@ export const WelcomeSplash: React.FC<WelcomeSplashProps> = ({ onEnter }) => {
               </motion.p>
 
               <motion.button
-                onClick={handleEnter}
+                onClick={onStartExit}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="group relative px-8 py-4 bg-transparent overflow-hidden rounded-full"
+                className="group relative px-8 py-4 bg-transparent overflow-hidden rounded-full cursor-pointer"
               >
                  <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-primary/80 to-blue-500/80 blur-xl opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
                  <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-primary to-blue-500 opacity-20 group-hover:opacity-40 transition-opacity border border-white/20 rounded-full" />
@@ -107,10 +88,10 @@ export const WelcomeSplash: React.FC<WelcomeSplashProps> = ({ onEnter }) => {
       </div>
 
       {/* Decorative Corners */}
-      <div className="absolute top-8 left-8 w-16 h-16 border-t border-l border-white/20 rounded-tl-3xl" />
-      <div className="absolute top-8 right-8 w-16 h-16 border-t border-r border-white/20 rounded-tr-3xl" />
-      <div className="absolute bottom-8 left-8 w-16 h-16 border-b border-l border-white/20 rounded-bl-3xl" />
-      <div className="absolute bottom-8 right-8 w-16 h-16 border-b border-r border-white/20 rounded-br-3xl" />
+      <div className="absolute top-8 left-8 w-16 h-16 border-t border-l border-white/20 rounded-tl-3xl pointer-events-none" />
+      <div className="absolute top-8 right-8 w-16 h-16 border-t border-r border-white/20 rounded-tr-3xl pointer-events-none" />
+      <div className="absolute bottom-8 left-8 w-16 h-16 border-b border-l border-white/20 rounded-bl-3xl pointer-events-none" />
+      <div className="absolute bottom-8 right-8 w-16 h-16 border-b border-r border-white/20 rounded-br-3xl pointer-events-none" />
     </motion.div>
   );
 };
