@@ -1,4 +1,4 @@
-import React, { useRef, useState, useMemo } from 'react';
+import React, { useRef, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Points, PointMaterial, Float, Sphere, MeshDistortMaterial, TorusKnot, Stars } from '@react-three/drei';
 import * as THREE from 'three';
@@ -28,7 +28,7 @@ const ParticleField = (props: any) => {
   // Use useMemo to generate points once
   const sphere = useMemo(() => generateSpherePoints(5000, 1.5), []);
 
-  useFrame((state, delta) => {
+  useFrame((_state, delta) => {
     if (ref.current) {
       ref.current.rotation.x -= delta / 10;
       ref.current.rotation.y -= delta / 15;
@@ -86,7 +86,7 @@ export const Intro3D = ({ exiting }: { exiting: boolean }) => {
   const groupRef = useRef<any>(null);
   const materialRef = useRef<any>(null);
   
-  useFrame((state, delta) => {
+  useFrame((_state, delta) => {
     if (groupRef.current) {
       // Rotate core
       groupRef.current.rotation.x += delta * 0.2;
@@ -136,7 +136,7 @@ export const Intro3D = ({ exiting }: { exiting: boolean }) => {
 export const Hero3D = () => {
   return (
     <div className="absolute inset-0 z-0 opacity-40 pointer-events-none">
-      <Canvas camera={{ position: [0, 0, 5] }}>
+      <Canvas camera={{ position: [0, 0, 5] }} dpr={[1, 1.5]} gl={{ powerPreference: 'high-performance' }}>
         <ambientLight intensity={0.5} />
         <directionalLight position={[10, 10, 5]} intensity={1} color="#00C9A7" />
         <ParticleField />

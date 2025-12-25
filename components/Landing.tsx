@@ -26,18 +26,12 @@ export const Landing: React.FC = () => {
   const [showSplash, setShowSplash] = useState(true);
 
   return (
-    <>
-      <AnimatePresence mode="wait">
-        {showSplash && (
-          <WelcomeSplash onEnter={() => setShowSplash(false)} />
-        )}
-      </AnimatePresence>
-
-      {/* Main Content - Only visible/interactive after splash, but we can keep it in DOM for preloading if desired, 
-          or simpler: just render. The Splash has a z-index of 100 so it covers this. */}
-      
-      {!showSplash && (
+    <AnimatePresence mode="wait">
+      {showSplash ? (
+        <WelcomeSplash key="splash" onEnter={() => setShowSplash(false)} />
+      ) : (
         <motion.div
+           key="landing"
            initial={{ opacity: 0 }}
            animate={{ opacity: 1 }}
            transition={{ duration: 1 }}
@@ -248,6 +242,6 @@ export const Landing: React.FC = () => {
           </section>
         </motion.div>
       )}
-    </>
+    </AnimatePresence>
   );
 };
